@@ -1,6 +1,6 @@
 import readline from "readline";
-import bookService from './book-service.js';
-import userService from './userService.js'; 
+import bookService from './services/book-service.js';
+import userService from './services/user-service.js'; 
 
 const rl = readline.createInterface({
     input: process.stdin,

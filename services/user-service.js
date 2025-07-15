@@ -1,5 +1,5 @@
-import { users } from './mock-data/users.js';
-import User from './user.js';
+import { users } from '../mock-data/users.js';
+import User from '../models/user.js';
 
 class userService {
     static findUserByUserName(userName) {

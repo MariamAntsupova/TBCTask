@@ -1,6 +1,6 @@
-import { books } from './mock-data/books.js';
-import Book from './book.js';
-import UserService from './userService.js';
+import { books } from '../mock-data/books.js';
+import Book from '../models/book.js';
+import UserService from './user-service.js';
 
 
 class bookService {
