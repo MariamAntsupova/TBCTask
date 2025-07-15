@@ -1,5 +1,7 @@
-import { users } from '../mock-data/users.js';
+import { users } from '../mocks/users.js';
 import User from '../models/user.js';
+
+import dateHelper from '../utils/date-helper.js';
 
 class userService {
     static findUserByUserName(userName) {
@@ -26,7 +28,7 @@ class userService {
 
     static checkOverdueUsers() {
         let overdueUsers = [];
-        const today = Date.parse(new Date().toISOString().split("T")[0]);
+        const today = dateHelper.getTodayTimestamp();
 
         users.forEach((user) => {
             user.borrowedBooks.forEach((borrowedBook) => {

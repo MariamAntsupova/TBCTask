@@ -1,7 +1,8 @@
-import { books } from '../mock-data/books.js';
+import { books } from '../mocks/books.js';
 import Book from '../models/book.js';
-import UserService from './user-service.js';
+import userService from './user-service.js';
 
+import dateHelper from '../utils/date-helper.js';
 
 class bookService {
     static findBookById(bookId) {
@@ -21,26 +22,26 @@ class bookService {
         return books;
     }
     static borrowBook(userName, bookId) {
-        const user = UserService.findUserByUserName(userName);
+        const user = userService.findUserByUserName(userName);
         const book = bookService.findBookById(bookId);
 
         if (!book.isAvailable) {
             throw new Error("Book is already borrowed.");
         }
 
-        const borrowDate = new Date();
-        const dueDate = new Date(borrowDate);
-        dueDate.setDate(borrowDate.getDate() + 14);
+        let today = dateHelper.getTodayTimestamp();
+
         user.borrowedBooks.push({
             bookId: book.id,
-            borrowDate: borrowDate.toISOString().split("T")[0],
-            dueDate: dueDate.toISOString().split("T")[0],
+            borrowDate: today,
+            dueDate: dateHelper.addDays(today, 14),
         });
+
         book.isAvailable = false;
         book.borrowCount += 1;
     }
     static returnBook(userName, bookId) {
-        const user = UserService.findUserByUserName(userName);
+        const user = userService.findUserByUserName(userName);
 
         const borrowedBookIndex = user.borrowedBooks.findIndex(
             (b) => b.bookId === bookId,
@@ -51,8 +52,8 @@ class bookService {
 
         const borrowedBook = user.borrowedBooks[borrowedBookIndex];
 
-        const returnDate = new Date().toISOString().split("T")[0];
-        const dueDate = borrowedBook.dueDate;
+        const returnDate = dateHelper.getTodayTimestamp();
+        const dueDate = Date.parse(borrowedBook.dueDate); 
         let hasPenalty = returnDate > dueDate;
         if (hasPenalty) user.penaltyPoints += 1;
 
@@ -101,7 +102,7 @@ class bookService {
             .slice(0, limit);
     }
     static recommendBooks(userName) {
-        const user = UserService.findUserByUserName(userName);
+        const user = userService.findUserByUserName(userName);
 
         const borrowedBookIds = user.borrowedBooks.map((book) => book.bookId);
         const borrowedGenres = books

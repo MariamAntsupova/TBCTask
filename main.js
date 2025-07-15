@@ -1,36 +1,17 @@
-import readline from "readline";
+import readline from 'readline';
+import userService from './services/user-service.js';
 import bookService from './services/book-service.js';
-import userService from './services/user-service.js'; 
+import Book from './models/book.js';
+
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
 
-function showMenu() {
-    console.log("\n📚 Library Management Menu:");
-    console.log("\nUsers");
-    console.log("1  See All Users");
-    console.log("2  Add User");
-    console.log("3  View User Summary");
-    console.log("4  Check Overdue Users");
-    console.log("\nBooks");
-    console.log("5  See All Books");
-    console.log("6  Search Books by word");    
-    console.log("7  Get top rated books");
-    console.log("8  Get most popular books");
-    console.log("9  Recommend Books");
-    console.log("10 Add Book");
-    console.log("11 Borrow Book");
-    console.log("12 Return Book");
-    console.log("13 Remove Book");
-    console.log("14  Exit");
-}
-
 function main() {
-    console.log("-------------------------------------------");
     showMenu();
-    rl.question("\n👉 Enter your choice: ", (choice) => {
+    rl.question("👉 Enter your choice: ", (choice) => {
         switch (choice.trim()) {
             case "1":
                 const users = userService.seeAllUsers();
@@ -42,7 +23,7 @@ function main() {
                 main();
                 break;
             case "2":
-                rl.question("\n👤 Enter user name: ", (name) => {
+                rl.question("👤 Enter user name: ", (name) => {
                     try {
                         if (!name.trim())
                             throw new Error("⚠️  User name cannot be empty.");
@@ -56,7 +37,7 @@ function main() {
                 break;
             case "3":
                 rl.question(
-                    "\n👤 Enter user name to view summary: ",
+                    "👤 Enter user name to view summary: ",
                     (userName) => {
                         try {
                             if (!userName.trim())
@@ -80,156 +61,44 @@ function main() {
                 );
                 break;
             case "4":
-                try {
-                    const overdueUsers = userService.checkOverdueUsers();
-                    if (overdueUsers.length === 0) {
-                        console.log("\n✅ No overdue users!\n");
-                    } else {
-                        console.log("\n⏰ Overdue Users:");
-                        overdueUsers.forEach(overdue => {
-                            console.log(`👤 ${overdue.userName} - 📘 Book ID: ${overdue.bookId} - Overdue Days: ${overdue.overdueDays}`);
-                        });
-                    }
-                } catch (err) {
-                    console.error(`❌ ${err.message}\n`);
+                const books = bookService.seeAllBooks();
+                for (const book of books) {
+                    console.log(
+                        `📘 Book: ${book.title} - Author: ${book.author} - Genre: ${book.genre} - Year Published: ${book.year} - Rating: ${book.rating} - Available: ${book.isAvailable} - Borrow Count: ${book.borrowCount}`);
                 }
                 main();
                 break;
             case "5":
-                const books = bookService.seeAllBooks();
-                for (const book of books) {
-                    console.log(
-                        `📘 Book: ${book.title} - Author: ${book.author} - Genre: ${book.genre} - Year Published: ${book.year} - Rating: ${book.rating} - Available: ${book.isAvailable} - Borrow Count: ${book.borrowCount}`,
-                    );
-                }
-                main();
-                break;
-            case "6":
-                rl.question("\n🔍 Enter search parameter (title, author, genre, rating, year): ", (param) => {
-                    rl.question("\n🔎 Enter value to search: ", (value) => {
-                        try {
-                            let searchValue = value.trim();
-
-                            if (["rating", "year"].includes(param)) {
-                                const num = Number(searchValue);
-                                if (isNaN(num)) throw new Error(`🚫 ${param} must be a number.`);
-                                searchValue = num;
-                            }
-
-                            const results = bookService.searchBooksBy(param, searchValue);
-
-                            for (const book of results) {
-                                console.log(
-                                    `📘 Book: ${book.title} - Author: ${book.author} - Genre: ${book.genre} - Year: ${book.year} - Rating: ${book.rating}`
-                                );
-                            }
-
-                            if (results.length === 0) {
-                                console.log("❌ No matching books found.");
-                            }
-                        } catch (err) {
-                            console.error(`❌ ${err.message}\n`);
-                        }
-                        main();
-                    });
-                });
-                break;
-            case "7":
-                rl.question("\n🔢 How many top-rated books do you want to see: ", (input) => {
-                    try {
-                        const limit = Number(input.trim());
-                        if (isNaN(limit) || limit <= 0) {
-                            throw new Error("🚫 Please enter a valid positive number.");
-                        }
-
-                        const topBooks = bookService.getTopRatedBooks(limit);
-                        if (topBooks.length === 0) {
-                            console.log("❌ No books available.");
-                        } else {
-                            console.log(`\n🌟 Top ${limit} Rated Books:`);
-                            for (const book of topBooks) {
-                                console.log(`📘 ${book.title} - Rating: ${book.rating}`);
-                            }
-                        }
-                    } catch (err) {
-                        console.error(`❌ ${err.message}\n`);
-                    }
-                    main();
-                });
-                break;
-            case "8":
-                rl.question("\n🔢 How many most popular books do you want to see? ", (input) => {
-                    try {
-                        const limit = Number(input.trim());
-                        if (isNaN(limit) || limit <= 0) {
-                            throw new Error("🚫 Please enter a valid positive number.");
-                        }
-
-                        const popularBooks = bookService.getMostPopularBooks(limit);
-                        if (popularBooks.length === 0) {
-                            console.log("❌ No books available.");
-                        } else {
-                            console.log(`\n🔥 Top ${limit} Most Popular Books:`);
-                            for (const book of popularBooks) {
-                                console.log(`📘 ${book.title} - Borrowed: ${book.borrowCount} times`);
-                            }
-                        }
-                    } catch (err) {
-                        console.error(`❌ ${err.message}\n`);
-                    }
-                    main();
-                });
-                break;
-            case "9":
-                rl.question("\n👤 Enter user name to get book recommendations: ", (userName) => {
-                    try {
-                        if (!userName.trim())
-                            throw new Error("⚠️  User name cannot be empty.");
-
-                        const recommendations = bookService.recommendBooks(userName.trim());
-                        if (recommendations.length === 0) {
-                            console.log("🤷 No recommendations available for this user.");
-                        } else {
-                            console.log(`\n📚 Recommended Books for ${userName.trim()}:`);
-                            for (const book of recommendations) {
-                                console.log(`📘 ${book.title} - Genre: ${book.genre} - Rating: ${book.rating}`);
-                            }
-                        }
-                    } catch (err) {
-                        console.error(`❌ ${err.message}\n`);
-                    }
-                    main();
-                });
-                break;
-            case "10":
-                rl.question("\n📘 Enter book title: ", (title) => {
-                    rl.question("✍️ Enter author name: ", (author) => {
-                        rl.question("🏷️ Enter genre: ", (genre) => {
-                            rl.question("📅 Enter year published: ", (yearInput) => {
+                rl.question("📘 Enter book title: ", (title) => {
+                    rl.question("✍️ Enter book author: ", (author) => {
+                        rl.question("📚 Enter book genre: ", (genre) => {
+                            rl.question("📅 Enter book year: ", (yearInput) => {
                                 try {
                                     const year = Number(yearInput.trim());
+
                                     if (!title.trim() || !author.trim() || !genre.trim()) {
-                                        throw new Error("⚠️ All fields must be filled.");
+                                        throw new Error("⚠️  All fields are required.");
                                     }
                                     if (isNaN(year)) {
-                                        throw new Error("🚫 Year must be a valid number.");
+                                        throw new Error("🚫 Year must be a number.");
                                     }
 
                                     if (bookService.checkIfBookExistsByTitle(title.trim())) {
-                                        throw new Error("⚠️ A book with this title already exists.");
+                                        throw new Error("⚠️  Book with this title already exists.");
                                     }
 
-                                    const newBook = bookService.addBook(
+                                    bookService.addBook(
                                         title.trim(),
                                         author.trim(),
                                         genre.trim(),
                                         year
                                     );
 
-                                    console.log(`✅ Book "${newBook.title}" added successfully!\n`);
+                                    console.log("✅ Book added successfully!\n");
                                 } catch (err) {
                                     console.error(`❌ ${err.message}\n`);
                                 }
+
                                 main();
                             });
                         });
@@ -237,11 +106,11 @@ function main() {
                 });
                 break;
 
-            case "11":
+            case "6":
                 rl.question(
-                    "\n👤 Enter user name to borrow book: ",
+                    "👤 Enter user name to borrow book: ",
                     (userName) => {
-                        rl.question("\n🔢 Enter book ID: ", (bookId) => {
+                        rl.question("🔢 Enter book ID: ", (bookId) => {
                             try {
                                 const id = Number(bookId);
                                 if (!userName.trim())
@@ -263,35 +132,35 @@ function main() {
                     },
                 );
                 break;
-            case "12":
-                rl.question(
-                    "\n👤 Enter user name to return book: ",
-                    (userName) => {
-                        rl.question("\n🔢 Enter book ID: ", (bookId) => {
-                            try {
-                                const id = Number(bookId);
-                                if (!userName.trim())
-                                    throw new Error(
-                                        "⚠️  User name cannot be empty.",
-                                    );
-                                if (isNaN(id))
-                                    throw new Error(
-                                        "🚫 Book ID must be a number.",
-                                    );
-                                let result = bookService.returnBook(userName.trim(), id);
-                                if (result.hasPenalty) console.log(`your penalty points are: ${result.user.penaltyPoints}`)
-                                console.log("✅ Book returned successfully!\n");
-                            } catch (err) {
-                                console.error(`❌ ${err.message}\n`);
-                            }
-                            main();
-                        });
-                    },
-                );
-                break;
+            case "7":
+                rl.question("👤 Enter user name to return book: ", (userName) => {
+                    rl.question("🔢 Enter book ID: ", (bookId) => {
+                        try {
+                            const id = Number(bookId);
+                            if (!userName.trim())
+                                throw new Error("⚠️  User name cannot be empty.");
+                            if (isNaN(id))
+                                throw new Error("🚫 Book ID must be a number.");
 
-            case "13":
-                rl.question("\n🔢 Enter book ID to remove: ", (bookId) => {
+                            const result = bookService.returnBook(userName.trim(), id);
+                            console.log(`✅ Book returned successfully!`);
+                            console.log(`👤 User: ${result.user.userName}`);
+                            console.log(`⚠️ Penalty Points: ${result.user.penaltyPoints}`);
+
+                            if (result.hasPenalty) {
+                                console.log("⏰ Returned late, penalty applied!");
+                            }
+
+                            console.log(""); 
+                        } catch (err) {
+                            console.error(`❌ ${err.message}\n`);
+                        }
+                        main();
+                    });
+                });
+                break;
+            case "8":
+                rl.question("🔢 Enter book ID to remove: ", (bookId) => {
                     try {
                         const id = Number(bookId);
                         if (isNaN(id))
@@ -305,12 +174,10 @@ function main() {
                     main();
                 });
                 break;
-                
-            case "14":
+            case "9":
                 console.log("👋 Exiting the system. Goodbye!");
                 rl.close();
                 break;
-
             default:
                 console.error("❌ Invalid option. Please try again.");
                 main();
@@ -318,10 +185,39 @@ function main() {
         }
     });
 }
+function showMenu() {
+    console.log("\n📚 Library Management Menu:");
+    console.log("\nUsers");
+    console.log("1  See All Users");
+    console.log("2  Add User");
+    console.log("3  View User Summary");
+    console.log("\nBooks");
+    console.log("4  See All Books");
+    console.log("5  Add Book");
+    console.log("6  Borrow Book");
+    console.log("7  Return Book");
+    console.log("8  Remove Book");
+    console.log("9  Exit");
+}
+function parseBookDetails(input) {
+    const parts = input.split(",");
+    if (parts.length < 4) {
+        throw new Error(
+            "⚠️  Please enter all four fields: title, author, genre, and year.",
+        );
+    }
+
+    const [rawTitle, rawAuthor, rawGenre, rawYear] = parts;
+    const title = rawTitle.trim();
+    const author = rawAuthor.trim();
+    const genre = rawGenre.trim();
+    const year = Number(rawYear.trim());
+
+    if (isNaN(year)) {
+        throw new Error("🚫 Year must be a valid number.");
+    }
+
+    return { title, author, genre, year };
+}
 
 main();
-
-
-
-
-
