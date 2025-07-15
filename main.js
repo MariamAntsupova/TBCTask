@@ -1,6 +1,6 @@
 import readline from "readline";
-import BookService from './bookService.js';
-import UserService from './userService.js'; 
+import bookService from './book-service.js';
+import userService from './userService.js'; 
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -33,7 +33,7 @@ function main() {
     rl.question("\n👉 Enter your choice: ", (choice) => {
         switch (choice.trim()) {
             case "1":
-                const users = UserService.seeAllUsers();
+                const users = userService.seeAllUsers();
                 for (const user of users) {
                     console.log(
                         `👤 User: ${user.userName} - Penalty Points: ${user.penaltyPoints} - BorrowedBooks: ${user.borrowedBooks.length}`,
@@ -46,7 +46,7 @@ function main() {
                     try {
                         if (!name.trim())
                             throw new Error("⚠️  User name cannot be empty.");
-                        UserService.createUser(name.trim());
+                        userService.createUser(name.trim());
                         console.log("✅ User created successfully!\n");
                     } catch (err) {
                         console.error(`❌ ${err.message}\n`);
@@ -64,7 +64,7 @@ function main() {
                                     "⚠️  User name cannot be empty.",
                                 );
 
-                            const user = UserService.findUserByUserName(
+                            const user = userService.findUserByUserName(
                                 userName.trim(),
                             );
                             console.log(`\n📄 User Summary:`);
@@ -81,7 +81,7 @@ function main() {
                 break;
             case "4":
                 try {
-                    const overdueUsers = UserService.checkOverdueUsers();
+                    const overdueUsers = userService.checkOverdueUsers();
                     if (overdueUsers.length === 0) {
                         console.log("\n✅ No overdue users!\n");
                     } else {
@@ -96,7 +96,7 @@ function main() {
                 main();
                 break;
             case "5":
-                const books = BookService.seeAllBooks();
+                const books = bookService.seeAllBooks();
                 for (const book of books) {
                     console.log(
                         `📘 Book: ${book.title} - Author: ${book.author} - Genre: ${book.genre} - Year Published: ${book.year} - Rating: ${book.rating} - Available: ${book.isAvailable} - Borrow Count: ${book.borrowCount}`,
@@ -116,7 +116,7 @@ function main() {
                                 searchValue = num;
                             }
 
-                            const results = BookService.searchBooksBy(param, searchValue);
+                            const results = bookService.searchBooksBy(param, searchValue);
 
                             for (const book of results) {
                                 console.log(
@@ -142,7 +142,7 @@ function main() {
                             throw new Error("🚫 Please enter a valid positive number.");
                         }
 
-                        const topBooks = BookService.getTopRatedBooks(limit);
+                        const topBooks = bookService.getTopRatedBooks(limit);
                         if (topBooks.length === 0) {
                             console.log("❌ No books available.");
                         } else {
@@ -165,7 +165,7 @@ function main() {
                             throw new Error("🚫 Please enter a valid positive number.");
                         }
 
-                        const popularBooks = BookService.getMostPopularBooks(limit);
+                        const popularBooks = bookService.getMostPopularBooks(limit);
                         if (popularBooks.length === 0) {
                             console.log("❌ No books available.");
                         } else {
@@ -186,7 +186,7 @@ function main() {
                         if (!userName.trim())
                             throw new Error("⚠️  User name cannot be empty.");
 
-                        const recommendations = BookService.recommendBooks(userName.trim());
+                        const recommendations = bookService.recommendBooks(userName.trim());
                         if (recommendations.length === 0) {
                             console.log("🤷 No recommendations available for this user.");
                         } else {
@@ -215,11 +215,11 @@ function main() {
                                         throw new Error("🚫 Year must be a valid number.");
                                     }
 
-                                    if (BookService.CheckIfBookExistsByTitle(title.trim())) {
+                                    if (bookService.checkIfBookExistsByTitle(title.trim())) {
                                         throw new Error("⚠️ A book with this title already exists.");
                                     }
 
-                                    const newBook = BookService.addBook(
+                                    const newBook = bookService.addBook(
                                         title.trim(),
                                         author.trim(),
                                         genre.trim(),
@@ -253,7 +253,7 @@ function main() {
                                         "🚫 Book ID must be a number.",
                                     );
 
-                                BookService.borrowBook(userName.trim(), id);
+                                bookService.borrowBook(userName.trim(), id);
                                 console.log("✅ Book borrowed successfully!\n");
                             } catch (err) {
                                 console.error(`❌ ${err.message}\n`);
@@ -278,7 +278,7 @@ function main() {
                                     throw new Error(
                                         "🚫 Book ID must be a number.",
                                     );
-                                let result = BookService.returnBook(userName.trim(), id);
+                                let result = bookService.returnBook(userName.trim(), id);
                                 if (result.hasPenalty) console.log(`your penalty points are: ${result.user.penaltyPoints}`)
                                 console.log("✅ Book returned successfully!\n");
                             } catch (err) {
@@ -297,7 +297,7 @@ function main() {
                         if (isNaN(id))
                             throw new Error("🚫 Book ID must be a number.");
 
-                        BookService.removeBook(id);
+                        bookService.removeBook(id);
                         console.log("✅ Book removed successfully!\n");
                     } catch (err) {
                         console.error(`❌ ${err.message}\n`);

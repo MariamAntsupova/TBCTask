@@ -1,7 +1,7 @@
-import { users } from './users.js';
+import { users } from './mock-data/users.js';
 import User from './user.js';
 
-class UserService {
+class userService {
     static findUserByUserName(userName) {
         const user = users.find((u) => u.userName === userName);
         if (!user) throw new Error("User not found");
@@ -49,4 +49,4 @@ class UserService {
     }
 }
 
-export default UserService;
+export default userService;

@@ -1,15 +1,15 @@
-import { books } from './books.js';
+import { books } from './mock-data/books.js';
 import Book from './book.js';
 import UserService from './userService.js';
 
 
-class BookService {
+class bookService {
     static findBookById(bookId) {
         const book = books.find((b) => b.id === bookId);
         if (!book) throw new Error("Book not found");
         return book;
     }
-    static CheckIfBookExistsByTitle(bookTitle) {
+    static checkIfBookExistsByTitle(bookTitle) {
         return books.some((b) => b.title === bookTitle);
     }
     static addBook(title, author, genre, year) {
@@ -22,7 +22,7 @@ class BookService {
     }
     static borrowBook(userName, bookId) {
         const user = UserService.findUserByUserName(userName);
-        const book = BookService.findBookById(bookId);
+        const book = bookService.findBookById(bookId);
 
         if (!book.isAvailable) {
             throw new Error("Book is already borrowed.");
@@ -56,7 +56,7 @@ class BookService {
         let hasPenalty = returnDate > dueDate;
         if (hasPenalty) user.penaltyPoints += 1;
 
-        const book = BookService.findBookById(bookId);
+        const book = bookService.findBookById(bookId);
         book.isAvailable = true;
 
         user.borrowedBooks.splice(borrowedBookIndex, 1);
@@ -119,7 +119,7 @@ class BookService {
         return recommendedBooks;
     }
     static removeBook(bookId) {
-        const book = BookService.findBookById(bookId);
+        const book = bookService.findBookById(bookId);
         if(!book.isAvailable){
             throw new Error("This book is borrowed and you can not delete it.");
         }
@@ -128,4 +128,4 @@ class BookService {
     }
 }
 
-export default BookService;
+export default bookService;
